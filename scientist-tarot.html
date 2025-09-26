@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luminaries Tarot - Professional Reading</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a0b2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+            color: #e8d5b7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.3rem;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .spread-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .spread-option {
+            padding: 0.5rem 1.5rem;
+            background: rgba(74, 63, 107, 0.3);
+            border: 1px solid #4a3f6b;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .spread-option.active {
+            background: rgba(74, 63, 107, 0.6);
+            border-color: #ffd700;
+            color: #ffd700;
+        }
+
+        .spread-option:hover {
+            background: rgba(74, 63, 107, 0.5);
+        }
+
+        .spread-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            min-height: 350px;
+        }
+
+        .card-position {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 160px;
+        }
+
+        .position-label {
+            color: #b8860b;
+            text-transform: uppercase;
+            letter-spacing: 0.2rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            height: 20px;
+        }
+
+        .card {
+            width: 160px;
+            height: 280px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            border: 2px solid #4a3f6b;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-back {
+            background: radial-gradient(ellipse at center, #2a1a4e, #0a0e27);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            transform: rotateY(0deg);
+            z-index: 2;
+        }
+
+        .card-back::before {
+            content: "";
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: repeating-conic-gradient(
+                from 0deg at 50% 50%,
+                transparent 0deg,
+                #4a3f6b 20deg,
+                transparent 40deg
+            );
+            animation: rotate 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .card-back-text {
+            font-size: 3rem;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        .card-front {
+            background: linear-gradient(145deg, #1e3c72, #2a5298);
+            transform: rotateY(180deg);
+            padding: 0.8rem;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            z-index: 2;
+        }
+
+        .reversed-indicator {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            color: #ff6b6b;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .arcana-number {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 0.9rem;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .figure-symbol {
+            width: 50px;
+            height: 50px;
+            margin: 0.5rem auto;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .figure-name {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
+            line-height: 1.2;
+        }
+
+        .arcana-name {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+            font-weight: bold;
+        }
+
+        .figure-title {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .element-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+
+        .draw-button {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            background: linear-gradient(145deg, #4a3f6b, #2a1a4e);
+            border: 2px solid #b8860b;
+            color: #e8d5b7;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .draw-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            background: linear-gradient(145deg, #5a4f7b, #3a2a5e);
+        }
+
+        .draw-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .interpretation {
+            max-width: 900px;
+            margin-top: 2rem;
+            padding: 2.5rem;
+            background: rgba(10, 14, 39, 0.95);
+            border-radius: 15px;
+            border: 1px solid #4a3f6b;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .interpretation.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .interpretation h3 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            font-size: 1.3rem;
+        }
+
+        .card-meanings {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-meaning {
+            padding: 1.2rem;
+            background: rgba(42, 26, 78, 0.3);
+            border-radius: 10px;
+            border-left: 3px solid #b8860b;
+        }
+
+        .card-meaning h4 {
+            color: #ffd700;
+            margin-bottom: 0.7rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reversed-badge {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        .card-meaning p {
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+
+        .meaning-keywords {
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            font-size: 0.9rem;
+            color: #b8860b;
+            font-style: italic;
+        }
+
+        .synthesis {
+            padding-top: 1.5rem;
+            border-top: 1px solid #4a3f6b;
+        }
+
+        .synthesis h4 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        .synthesis p {
+            line-height: 1.8;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .energy-summary {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(42, 26, 78, 0.2);
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .energy-item {
+            text-align: center;
+        }
+
+        .energy-label {
+            font-size: 0.8rem;
+            color: #b8860b;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .energy-value {
+            color: #ffd700;
+            font-size: 1rem;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .spread-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .card {
+                width: 140px;
+                height: 240px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <h1>Luminaries Tarot</h1>
+    <p class="subtitle">Where Science Meets Mysticism</p>
+    
+    <div class="spread-selector">
+        <div class="spread-option active" data-spread="ppf">Past • Present • Future</div>
+        <div class="spread-option" data-spread="situation">Situation • Action • Outcome</div>
+        <div class="spread-option" data-spread="mind">Mind • Body • Spirit</div>
+    </div>
+    
+    <div class="spread-container" id="spreadContainer"></div>
+    
+    <button class="draw-button" id="drawButton">Draw Three Cards</button>
+    
+    <div class="interpretation" id="interpretation">
+        <h3 id="readingTitle">Your Reading</h3>
+        <div class="card-meanings" id="cardMeanings"></div>
+        <div class="synthesis">
+            <h4>Synthesis</h4>
+            <p id="synthesisText"></p>
+            <div class="energy-summary" id="energySummary"></div>
+        </div>
+    </div>
+
+    <script>
+        // Complete Major Arcana with traditional meanings
+        const majorArcana = [
+            {
+                number: 0,
+                arcana: "The Fool",
+                figure: "Alan Turing",
+                title: "The Innocent Genius",
+                symbol: "0",
+                element: "Air",
+                meaning: {
+                    upright: {
+                        keywords: "New beginnings, innocence, spontaneity, free spirit",
+                        interpretation: "Like Turing's childlike curiosity that revolutionized computing, this card speaks to approaching problems with fresh eyes and unlimited possibility."
+                    },
+                    reversed: {
+                        keywords: "Recklessness, risk-taking, foolishness",
+                        interpretation: "Turing's persecution warns of society's fear of the unconventional. Beware naive trust in systems that may not protect you."
+                    }
+                }
+            },
+            {
+                number: 1,
+                arcana: "The Magician",
+                figure: "Nikola Tesla",
+                title: "Master of Forces",
+                symbol: "⚡",
+                element: "Mercury",
+                meaning: {
+                    upright: {
+                        keywords: "Manifestation, resourcefulness, power, inspired action",
+                        interpretation: "Tesla's mastery over electricity mirrors your ability to channel raw potential into reality through will and skill."
+                    },
+                    reversed: {
+                        keywords: "Manipulation, poor planning, untapped talents",
+                        interpretation: "Tesla's later isolation warns against letting vision become delusion. Ground your genius in practical application."
+                    }
+                }
+            },
+            {
+                number: 2,
+                arcana: "The High Priestess",
+                figure: "Hypatia",
+                title: "Keeper of Mysteries",
+                symbol: "◯",
+                element: "Moon",
+                meaning: {
+                    upright: {
+                        keywords: "Intuition, sacred knowledge, divine feminine, subconscious",
+                        interpretation: "Hypatia's wisdom tradition calls you to trust inner knowing and the mysteries that logic alone cannot grasp."
+                    },
+                    reversed: {
+                        keywords: "Secrets, disconnection, withdrawal",
+                        interpretation: "Hypatia's murder by zealots warns of hidden dangers. Trust your intuition about who deserves access to your wisdom."
+                    }
+                }
+            },
+            {
+                number: 3,
+                arcana: "The Empress",
+                figure: "Rachel Carson",
+                title: "Mother of Awareness",
+                symbol: "🌿",
+                element: "Venus",
+                meaning: {
+                    upright: {
+                        keywords: "Femininity, beauty, nature, nurturing, abundance",
+                        interpretation: "Carson's protection of nature reflects the fertile creative force and the need to nurture what you've brought to life."
+                    },
+                    reversed: {
+                        keywords: "Creative block, dependence, smothering",
+                        interpretation: "Carson faced chemical industry attacks. Your nurturing instincts may be challenged by those who profit from destruction."
+                    }
+                }
+            },
+            {
+                number: 4,
+                arcana: "The Emperor",
+                figure: "Ibn Khaldun",
+                title: "The Systems Builder",
+                symbol: "◈",
+                element: "Aries",
+                meaning: {
+                    upright: {
+                        keywords: "Authority, structure, control, father figure",
+                        interpretation: "Ibn Khaldun's understanding of civilizational patterns represents the ordering principle and structural mastery."
+                    },
+                    reversed: {
+                        keywords: "Tyranny, rigidity, coldness",
+                        interpretation: "Ibn Khaldun knew empires fall. Excessive control breeds its own destruction. Flexibility preserves power."
+                    }
+                }
+            },
+            {
+                number: 5,
+                arcana: "The Hierophant",
+                figure: "Albert Einstein",
+                title: "The Revolutionary Sage",
+                symbol: "∞",
+                element: "Taurus",
+                meaning: {
+                    upright: {
+                        keywords: "Spiritual wisdom, tradition, conformity, morality",
+                        interpretation: "Einstein paradoxically represents both the establishment of new dogma and the breaking of old truths."
+                    },
+                    reversed: {
+                        keywords: "Rebellion, subversion, challenging the status quo",
+                        interpretation: "Einstein's pacifism in wartime shows the courage needed to defy institutional pressure."
+                    }
+                }
+            },
+            {
+                number: 6,
+                arcana: "The Lovers",
+                figure: "Marie & Pierre Curie",
+                title: "The Unified Seekers",
+                symbol: "☢",
+                element: "Gemini",
+                meaning: {
+                    upright: {
+                        keywords: "Relationships, values alignment, choices, union",
+                        interpretation: "The Curies' partnership shows how collaboration and shared passion create discoveries neither could achieve alone."
+                    },
+                    reversed: {
+                        keywords: "Disharmony, imbalance, misalignment",
+                        interpretation: "Marie's widowhood reminds us that even perfect partnerships are temporary. Maintain your independent strength."
+                    }
+                }
+            },
+            {
+                number: 7,
+                arcana: "The Chariot",
+                figure: "Yuri Gagarin",
+                title: "The Cosmic Pioneer",
+                symbol: "🚀",
+                element: "Cancer",
+                meaning: {
+                    upright: {
+                        keywords: "Control, willpower, success, determination",
+                        interpretation: "Gagarin's journey beyond Earth represents triumph through courage and the mastery of opposing forces."
+                    },
+                    reversed: {
+                        keywords: "Lack of control, aggression, obstacles",
+                        interpretation: "Gagarin's early death warns that conquering one frontier doesn't guarantee safety in another."
+                    }
+                }
+            },
+            {
+                number: 8,
+                arcana: "Strength",
+                figure: "Jane Goodall",
+                title: "The Patient Observer",
+                symbol: "🐾",
+                element: "Leo",
+                meaning: {
+                    upright: {
+                        keywords: "Inner strength, courage, patience, compassion",
+                        interpretation: "Goodall's gentle persistence with chimpanzees shows that true strength comes through patience and understanding."
+                    },
+                    reversed: {
+                        keywords: "Self-doubt, weakness, insecurity",
+                        interpretation: "Early dismissal of Goodall's work warns against letting others' skepticism erode your confidence."
+                    }
+                }
+            },
+            {
+                number: 9,
+                arcana: "The Hermit",
+                figure: "Srinivasa Ramanujan",
+                title: "The Solitary Mystic",
+                symbol: "π",
+                element: "Virgo",
+                meaning: {
+                    upright: {
+                        keywords: "Soul searching, introspection, inner guidance, solitude",
+                        interpretation: "Ramanujan's isolated mathematical visions represent the wisdom found in solitary contemplation."
+                    },
+                    reversed: {
+                        keywords: "Isolation, loneliness, withdrawal",
+                        interpretation: "Ramanujan's premature death in isolation warns against completely severing connections with the world."
+                    }
+                }
+            },
+            {
+                number: 10,
+                arcana: "Wheel of Fortune",
+                figure: "Charles Darwin",
+                title: "The Pattern Revealer",
+                symbol: "⟳",
+                element: "Jupiter",
+                meaning: {
+                    upright: {
+                        keywords: "Good luck, karma, cycles, destiny, turning point",
+                        interpretation: "Darwin's evolution shows how fortune emerges from countless small turns of the wheel of adaptation."
+                    },
+                    reversed: {
+                        keywords: "Bad luck, lack of control, clinging to control",
+                        interpretation: "Darwin's delay in publishing warns that fortune's wheel waits for no one. Act when the moment arrives."
+                    }
+                }
+            },
+            {
+                number: 11,
+                arcana: "Justice",
+                figure: "Rosalind Franklin",
+                title: "The Truth Keeper",
+                symbol: "⚖",
+                element: "Libra",
+                meaning: {
+                    upright: {
+                        keywords: "Justice, fairness, truth, cause and effect, law",
+                        interpretation: "Franklin's unrecognized contributions remind us that justice and truth eventually prevail, even if delayed."
+                    },
+                    reversed: {
+                        keywords: "Unfairness, lack of accountability, dishonesty",
+                        interpretation: "Franklin's stolen credit warns that justice may require active advocacy, not passive waiting."
+                    }
+                }
+            },
+            {
+                number: 12,
+                arcana: "The Hanged Man",
+                figure: "Galileo Galilei",
+                title: "The Suspended Visionary",
+                symbol: "🔭",
+                element: "Neptune",
+                meaning: {
+                    upright: {
+                        keywords: "Surrender, new perspective, sacrifice, pause",
+                        interpretation: "Galileo's house arrest for his truths shows how suspension can lead to profound shifts in perspective."
+                    },
+                    reversed: {
+                        keywords: "Delays, resistance, stalling",
+                        interpretation: "Galileo's forced recantation shows the futility of denying truth to appease authority."
+                    }
+                }
+            },
+            {
+                number: 13,
+                arcana: "Death",
+                figure: "J. Robert Oppenheimer",
+                title: "Destroyer of Worlds",
+                symbol: "☣",
+                element: "Scorpio",
+                meaning: {
+                    upright: {
+                        keywords: "Endings, transformation, transition, letting go",
+                        interpretation: "Oppenheimer's atomic creation represents the death of one age and violent birth of another."
+                    },
+                    reversed: {
+                        keywords: "Resistance to change, fear of endings",
+                        interpretation: "Oppenheimer's regret shows that resisting necessary endings only prolongs suffering."
+                    }
+                }
+            },
+            {
+                number: 14,
+                arcana: "Temperance",
+                figure: "Carl Jung",
+                title: "The Integration Master",
+                symbol: "☯",
+                element: "Sagittarius",
+                meaning: {
+                    upright: {
+                        keywords: "Balance, moderation, patience, purpose",
+                        interpretation: "Jung's work on integrating opposites reflects the alchemical process of creating harmony from discord."
+                    },
+                    reversed: {
+                        keywords: "Imbalance, excess, lack of long-term vision",
+                        interpretation: "Jung's break with Freud shows that forced harmony is no harmony at all."
+                    }
+                }
+            },
+            {
+                number: 15,
+                arcana: "The Devil",
+                figure: "Thomas Edison",
+                title: "The Relentless Competitor",
+                symbol: "💡",
+                element: "Capricorn",
+                meaning: {
+                    upright: {
+                        keywords: "Bondage, materialism, sexuality, attachment",
+                        interpretation: "Edison's cutthroat business practices and obsession remind us how ambition can become our chains."
+                    },
+                    reversed: {
+                        keywords: "Release, detachment, breaking free",
+                        interpretation: "Edison's rivalry with Tesla shows liberation comes from focusing on creation, not competition."
+                    }
+                }
+            },
+            {
+                number: 16,
+                arcana: "The Tower",
+                figure: "Werner Heisenberg",
+                title: "The Uncertainty Prophet",
+                symbol: "⚛",
+                element: "Mars",
+                meaning: {
+                    upright: {
+                        keywords: "Sudden change, upheaval, chaos, revelation",
+                        interpretation: "Heisenberg's uncertainty principle shattered the tower of deterministic physics forever."
+                    },
+                    reversed: {
+                        keywords: "Avoidance of disaster, fear of change",
+                        interpretation: "Heisenberg's work for Nazi Germany shows how avoiding moral reckoning compounds the eventual fall."
+                    }
+                }
+            },
+            {
+                number: 17,
+                arcana: "The Star",
+                figure: "Carl Sagan",
+                title: "The Cosmic Poet",
+                symbol: "⭐",
+                element: "Aquarius",
+                meaning: {
+                    upright: {
+                        keywords: "Hope, faith, renewal, spirituality",
+                        interpretation: "Sagan's ability to inspire wonder about the cosmos represents hope and connection to something greater."
+                    },
+                    reversed: {
+                        keywords: "Lack of faith, despair, disconnection",
+                        interpretation: "Sagan's battle with pseudoscience shows that hope without critical thinking becomes delusion."
+                    }
+                }
+            },
+            {
+                number: 18,
+                arcana: "The Moon",
+                figure: "Sigmund Freud",
+                title: "The Dream Walker",
+                symbol: "☾",
+                element: "Pisces",
+                meaning: {
+                    upright: {
+                        keywords: "Illusion, fear, anxiety, intuition, dreams",
+                        interpretation: "Freud's exploration of the unconscious reveals the shadowy realm where nothing is as it seems."
+                    },
+                    reversed: {
+                        keywords: "Release of fear, repressed emotion, confusion",
+                        interpretation: "Freud's cocaine use warns that escaping illusions through substances creates deeper deceptions."
+                    }
+                }
+            },
+            {
+                number: 19,
+                arcana: "The Sun",
+                figure: "Leonardo da Vinci",
+                title: "The Renaissance Soul",
+                symbol: "☀",
+                element: "Sun",
+                meaning: {
+                    upright: {
+                        keywords: "Joy, success, positivity, vitality",
+                        interpretation: "Da Vinci's boundless creativity and mastery represents the full flowering of human potential."
+                    },
+                    reversed: {
+                        keywords: "Inner child, feeling down, overly optimistic",
+                        interpretation: "Da Vinci's unfinished works warn that endless enthusiasm without completion yields beautiful fragments."
+                    }
+                }
+            },
+            {
+                number: 20,
+                arcana: "Judgement",
+                figure: "Alfred Nobel",
+                title: "The Redeemed Legacy",
+                symbol: "🎖",
+                element: "Pluto",
+                meaning: {
+                    upright: {
+                        keywords: "Reflection, reckoning, inner calling",
+                        interpretation: "Nobel's transformation from merchant of death to peace prize creator shows the power of conscious redemption."
+                    },
+                    reversed: {
+                        keywords: "Self-doubt, inability to forgive self, harsh judgment",
+                        interpretation: "Nobel's premature obituary shows that waiting too long for redemption may mean missing the chance."
+                    }
+                }
+            },
+            {
+                number: 21,
+                arcana: "The World",
+                figure: "Ada Lovelace",
+                title: "The First Programmer",
+                symbol: "🌐",
+                element: "Saturn",
+                meaning: {
+                    upright: {
+                        keywords: "Completion, accomplishment, travel, unity",
+                        interpretation: "Lovelace's vision of computing's potential represents the completion of one cycle and beginning of a new world."
+                    },
+                    reversed: {
+                        keywords: "Lack of closure, incomplete, seeking external validation",
+                        interpretation: "Lovelace's early death reminds us that worldly completion is an illusion—the work continues beyond us."
+                    }
+                }
+            }
+        ];
+
+        const spreads = {
+            ppf: {
+                name: "Past • Present • Future",
+                positions: ["Past", "Present", "Future"],
+                descriptions: [
+                    "The roots and influences that have shaped your current path",
+                    "The energies and challenges that surround you now",
+                    "The potential outcomes emerging from current trajectories"
+                ]
+            },
+            situation: {
+                name: "Situation • Action • Outcome",
+                positions: ["Situation", "Action", "Outcome"],
+                descriptions: [
+                    "The current circumstances and their true nature",
+                    "The approach or response that will serve you best",
+                    "The likely result of taking this course"
+                ]
+            },
+            mind: {
+                name: "Mind • Body • Spirit",
+                positions: ["Mind", "Body", "Spirit"],
+                descriptions: [
+                    "Your mental state and intellectual approach",
+                    "Physical world manifestations and material concerns",
+                    "Your spiritual connection and higher purpose"
+                ]
+            }
+        };
+
+        let currentSpread = 'ppf';
+        let drawnCards = [];
+        let isDrawing = false;
+
+        // Create stars
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize spread
+        function initializeSpread() {
+            const container = document.getElementById('spreadContainer');
+            const spread = spreads[currentSpread];
+            
+            container.innerHTML = spread.positions.map((pos, i) => `
+                <div class="card-position">
+                    <div class="position-label">${pos}</div>
+                    <div class="card" id="card${i + 1}" data-position="${i}">
+                        <div class="card-face card-back">
+                            <div class="card-back-text">☆</div>
+                        </div>
+                        <div class="card-face card-front" id="cardFront${i + 1}">
+                            <div class="arcana-number"></div>
+                            <div class="figure-symbol"></div>
+                            <div class="figure-name"></div>
+                            <div class="arcana-name"></div>
+                            <div class="figure-title"></div>
+                            <div class="element-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function drawThreeCards() {
+            if (isDrawing) return;
+            isDrawing = true;
+
+            // Reset
+            document.getElementById('interpretation').classList.remove('show');
+            initializeSpread();
+
+            // Draw 3 unique cards with reversed possibilities
+            drawnCards = [];
+            const availableCards = [...majorArcana];
+            
+            for (let i = 0; i < 3; i++) {
+                const randomIndex = Math.floor(Math.random() * availableCards.length);
+                const card = {...availableCards[randomIndex]};
+                card.isReversed = Math.random() < 0.5; // 50% chance of reversed
+                drawnCards.push(card);
+                availableCards.splice(randomIndex, 1);
+            }
+
+            // Animate cards one by one
+            setTimeout(() => {
+                flipCard(1, drawnCards[0], () => {
+                    setTimeout(() => {
+                        flipCard(2, drawnCards[1], () => {
+                            setTimeout(() => {
+                                flipCard(3, drawnCards[2], () => {
+                                    setTimeout(() => {
+                                        showInterpretation();
+                                        isDrawing = false;
+                                    }, 500);
+                                });
+                            }, 300);
+                        });
+                    }, 300);
+                });
+            }, 300);
+        }
+
+        function flipCard(cardNum, cardData, callback) {
+            const card = document.getElementById(`card${cardNum}`);
+            const front = document.getElementById(`cardFront${cardNum}`);
+            
+            // Set card content
+            front.querySelector('.arcana-number').textContent = 
+                cardData.number === 0 ? '0' : cardData.number < 10 ? `0${cardData.number}` : cardData.number;
+            front.querySelector('.figure-symbol').textContent = cardData.symbol;
+            front.querySelector('.figure-name').textContent = cardData.figure;
+            front.querySelector('.arcana-name').textContent = cardData.arcana;
+            front.querySelector('.figure-title').textContent = cardData.title;
+            front.querySelector('.element-indicator').textContent = cardData.element;
+            
+            // Add reversed indicator if needed
+            if (cardData.isReversed) {
+                const reversedSpan = document.createElement('span');
+                reversedSpan.className = 'reversed-indicator';
+                reversedSpan.textContent = '↓';
+                front.appendChild(reversedSpan);
+            }
+            
+            // Simply flip the card
+            card.classList.add('is-flipped');
+            
+            if (callback) {
+                setTimeout(callback, 600);
+            }
+        }
+
+        function generateDetailedSynthesis(cards) {
+            const spread = spreads[currentSpread];
+            const energies = analyzeEnergies(cards);
+            
+            let synthesis = "";
+            
+            // Analyze card relationships
+            const hasMultipleReversed = cards.filter(c => c.isReversed).length >= 2;
+            const allUpright = cards.every(c => !c.isReversed);
+            const hasMajorTransition = cards.some(c => [10, 13, 16, 20].includes(c.number));
+            
+            if (currentSpread === 'ppf') {
+                synthesis = `Your journey from ${cards[0].arcana} ${cards[0].isReversed ? '(Reversed)' : ''} through ${cards[1].arcana} ${cards[1].isReversed ? '(Reversed)' : ''} to ${cards[2].arcana} ${cards[2].isReversed ? '(Reversed)' : ''} tells a powerful story. `;
+                
+                if (hasMultipleReversed) {
+                    synthesis += `The prominence of reversed cards suggests internal obstacles and the need for deep introspection. `;
+                } else if (allUpright) {
+                    synthesis += `The flow of upright energy indicates clear channels and favorable conditions for growth. `;
+                }
+                
+                synthesis += `${cards[0].figure}'s influence in your past ${cards[0].isReversed ? 'challenged you with' : 'blessed you with'} ${cards[0].isReversed ? cards[0].meaning.reversed.keywords : cards[0].meaning.upright.keywords}. `;
+                synthesis += `Now, ${cards[1].figure} illuminates your present moment, demanding ${cards[1].isReversed ? cards[1].meaning.reversed.keywords : cards[1].meaning.upright.keywords}. `;
+                synthesis += `The future holds ${cards[2].figure}'s promise of ${cards[2].isReversed ? cards[2].meaning.reversed.keywords : cards[2].meaning.upright.keywords}.`;
+                
+            } else if (currentSpread === 'situation') {
+                synthesis = `Your situation reveals itself through ${cards[0].arcana} ${cards[0].isReversed ? '(Reversed)' : ''}, calling for action through ${cards[1].arcana} ${cards[1].isReversed ? '(Reversed)' : ''}, leading to ${cards[2].arcana} ${cards[2].isReversed ? '(Reversed)' : ''}. `;
+                
+                synthesis += `The true nature of your circumstances involves ${cards[0].isReversed ? cards[0].meaning.reversed.interpretation : cards[0].meaning.upright.interpretation} `;
+                synthesis += `Your best response channels ${cards[1].figure}'s wisdom: ${cards[1].isReversed ? cards[1].meaning.reversed.interpretation : cards[1].meaning.upright.interpretation} `;
+                synthesis += `This path leads to ${cards[2].isReversed ? 'the shadow side of' : 'the light of'} ${cards[2].arcana}, where ${cards[2].isReversed ? cards[2].meaning.reversed.keywords : cards[2].meaning.upright.keywords} await.`;
+                
+            } else if (currentSpread === 'mind') {
+                synthesis = `Your consciousness expresses through three levels: ${cards[0].arcana} ${cards[0].isReversed ? '(Reversed)' : ''} in Mind, ${cards[1].arcana} ${cards[1].isReversed ? '(Reversed)' : ''} in Body, and ${cards[2].arcana} ${cards[2].isReversed ? '(Reversed)' : ''} in Spirit. `;
+                
+                synthesis += `Mentally, you're processing ${cards[0].isReversed ? cards[0].meaning.reversed.keywords : cards[0].meaning.upright.keywords}. `;
+                synthesis += `Physically, the world reflects ${cards[1].isReversed ? cards[1].meaning.reversed.keywords : cards[1].meaning.upright.keywords}. `;
+                synthesis += `Spiritually, you're called toward ${cards[2].isReversed ? cards[2].meaning.reversed.keywords : cards[2].meaning.upright.keywords}.`;
+            }
+            
+            // Add thematic advice
+            if (hasMajorTransition) {
+                synthesis += ` This reading contains cards of major transformation—prepare for significant shifts in your reality.`;
+            }
+            
+            return synthesis;
+        }
+
+        function analyzeEnergies(cards) {
+            const elements = cards.map(c => c.element);
+            const numbers = cards.map(c => c.number);
+            const reversed = cards.filter(c => c.isReversed).length;
+            
+            // Numerological sum
+            const numerologySum = numbers.reduce((a, b) => a + b, 0);
+            const numerologyRoot = numerologySum % 22; // Reduce to Major Arcana range
+            
+            // Dominant element
+            const elementCounts = {};
+            elements.forEach(e => elementCounts[e] = (elementCounts[e] || 0) + 1);
+            const dominantElement = Object.keys(elementCounts).reduce((a, b) => 
+                elementCounts[a] > elementCounts[b] ? a : b
+            );
+            
+            return {
+                numerology: numerologyRoot,
+                dominant: dominantElement,
+                reversed: reversed,
+                balance: reversed === 0 ? "Fully Direct" : reversed === 3 ? "Fully Reversed" : "Mixed"
+            };
+        }
+
+        function showInterpretation() {
+            const interpretation = document.getElementById('interpretation');
+            const cardMeanings = document.getElementById('cardMeanings');
+            const spread = spreads[currentSpread];
+            
+            // Generate individual card meanings
+            cardMeanings.innerHTML = drawnCards.map((card, index) => {
+                const meaning = card.isReversed ? card.meaning.reversed : card.meaning.upright;
+                return `
+                    <div class="card-meaning">
+                        <h4>
+                            ${spread.positions[index]}: ${card.figure} as ${card.arcana}
+                            ${card.isReversed ? '<span class="reversed-badge">Reversed</span>' : ''}
+                        </h4>
+                        <p>${spread.descriptions[index]}</p>
+                        <p style="margin-top: 0.8rem;">${meaning.interpretation}</p>
+                        <div class="meaning-keywords">Keywords: ${meaning.keywords}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Generate synthesis
+            document.getElementById('synthesisText').textContent = generateDetailedSynthesis(drawnCards);
+            
+            // Generate energy summary
+            const energies = analyzeEnergies(drawnCards);
+            document.getElementById('energySummary').innerHTML = `
+                <div class="energy-item">
+                    <div class="energy-label">Numerology</div>
+                    <div class="energy-value">${majorArcana[energies.numerology].arcana}</div>
+                </div>
+                <div class="energy-item">
+                    <div class="energy-label">Dominant Energy</div>
+                    <div class="energy-value">${energies.dominant}</div>
+                </div>
+                <div class="energy-item">
+                    <div class="energy-label">Card Balance</div>
+                    <div class="energy-value">${energies.balance}</div>
+                </div>
+                <div class="energy-item">
+                    <div class="energy-label">Reading Power</div>
+                    <div class="energy-value">${energies.reversed === 0 ? 'Clear Path' : energies.reversed === 3 ? 'Deep Shadow Work' : 'Balanced Challenge'}</div>
+                </div>
+            `;
+            
+            interpretation.classList.add('show');
+        }
+
+        // Event listeners
+        document.getElementById('drawButton').addEventListener('click', drawThreeCards);
+        
+        document.querySelectorAll('.spread-option').forEach(option => {
+            option.addEventListener('click', function() {
+                if (isDrawing) return;
+                
+                document.querySelectorAll('.spread-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSpread = this.dataset.spread;
+                
+                // Reset interpretation
+                document.getElementById('interpretation').classList.remove('show');
+                // Reset any flipped cards
+                document.querySelectorAll('.card').forEach(card => {
+                    card.classList.remove('is-flipped');
+                });
+                document.querySelectorAll('.reversed-indicator').forEach(indicator => {
+                    indicator.remove();
+                });
+                initializeSpread();
+            });
+        });
+
+        // Initialize
+        createStars();
+        initializeSpread();
+    </script>
+</body>
+</html>
