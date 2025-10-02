@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientists & Sci-Fi Tarot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a0b2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: 'Georgia', serif;
+            color: #e8d5b7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.3rem;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        .subtitle {
+            text-align: center;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .deck-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #b8860b;
+            opacity: 0.8;
+        }
+
+        .spread-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .spread-option {
+            padding: 0.5rem 1.5rem;
+            background: rgba(74, 63, 107, 0.3);
+            border: 1px solid #4a3f6b;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .spread-option.active {
+            background: rgba(74, 63, 107, 0.6);
+            border-color: #ffd700;
+            color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .spread-option:hover {
+            background: rgba(74, 63, 107, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .spread-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            min-height: 320px;
+        }
+
+        .card-position {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 160px;
+        }
+
+        .position-label {
+            color: #b8860b;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            min-height: 20px;
+            text-align: center;
+        }
+
+        .card {
+            width: 160px;
+            height: 260px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover:not(.is-flipped) {
+            transform: translateY(-5px) rotateY(5deg);
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            border: 2px solid #4a3f6b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .card-back {
+            background: radial-gradient(ellipse at center, #2a1a4e, #0a0e27);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            transform: rotateY(0deg);
+            z-index: 2;
+        }
+
+        .card-back::before {
+            content: "";
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            background: repeating-conic-gradient(
+                from 0deg at 50% 50%,
+                transparent 0deg,
+                #4a3f6b 20deg,
+                transparent 40deg
+            );
+            animation: rotate 20s linear infinite;
+            opacity: 0.3;
+        }
+
+        .card-back::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, rgba(255, 215, 0, 0.1) 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .card-back-text {
+            font-size: 2.5rem;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        .card-front {
+            background: linear-gradient(145deg, #1e3c72, #2a5298);
+            transform: rotateY(180deg);
+            padding: 0.8rem 0.5rem;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-front.minor-wands {
+            background: linear-gradient(145deg, #8B2C02, #D2691E);
+        }
+
+        .card-front.minor-cups {
+            background: linear-gradient(145deg, #1e3c72, #4682B4);
+        }
+
+        .card-front.minor-swords {
+            background: linear-gradient(145deg, #4a5568, #718096);
+        }
+
+        .card-front.minor-pentacles {
+            background: linear-gradient(145deg, #2d4a2b, #4a7c4e);
+        }
+
+        .suit-indicator {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            opacity: 0.9;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 0.02rem;
+        }
+
+        .arcana-number {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 1rem;
+            color: #ffd700;
+            font-weight: bold;
+            font-family: Georgia, serif;
+        }
+
+        .figure-symbol {
+            width: 50px;
+            height: 50px;
+            margin: 0.5rem auto;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-family: Georgia, serif;
+            font-weight: bold;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            color: #ffd700;
+        }
+
+        .figure-name {
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 0.02rem;
+            line-height: 1.2;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .arcana-name {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+            font-weight: bold;
+        }
+
+        .figure-title {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            font-style: italic;
+            max-width: 90%;
+        }
+
+        .reversed-indicator {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            color: #ff6b6b;
+            font-size: 1rem;
+            opacity: 0.8;
+            font-weight: normal;
+            animation: flicker 2s ease-in-out infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        .draw-button {
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
+            background: linear-gradient(145deg, #4a3f6b, #2a1a4e);
+            border: 2px solid #b8860b;
+            color: #e8d5b7;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .draw-button::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.3), transparent);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .draw-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .draw-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            background: linear-gradient(145deg, #5a4f7b, #3a2a5e);
+        }
+
+        .draw-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .interpretation {
+            max-width: 900px;
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(10, 14, 39, 0.95);
+            border-radius: 15px;
+            border: 1px solid #4a3f6b;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+            position: relative;
+        }
+
+        .interpretation.show {
+            opacity: 1;
+            transform: translateY(0);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+        }
+
+        .interpretation h3 {
+            color: #ffd700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            font-size: 1.3rem;
+        }
+
+        .card-meanings {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-meaning {
+            padding: 1rem;
+            background: rgba(42, 26, 78, 0.3);
+            border-radius: 10px;
+            border-left: 3px solid #b8860b;
+            transition: all 0.3s ease;
+        }
+
+        .card-meaning:hover {
+            background: rgba(42, 26, 78, 0.4);
+            transform: translateX(5px);
+        }
+
+        .card-meaning h4 {
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .reversed-badge {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        .card-meaning p {
+            line-height: 1.6;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .person-bio {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-style: italic;
+            margin-top: 0.3rem;
+            color: #b8860b;
+        }
+
+        .synthesis {
+            padding-top: 1.5rem;
+            border-top: 1px solid #4a3f6b;
+        }
+
+        .synthesis h4 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        .synthesis p {
+            line-height: 1.8;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .mystical-guidance {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 215, 0, 0.3);
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffd700;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .connection-threads {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .historical-echo, .easter-egg {
+            margin-top: 1.5rem;
+            padding: 1.2rem;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .historical-echo {
+            background: linear-gradient(135deg, rgba(184, 134, 11, 0.1), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(184, 134, 11, 0.3);
+        }
+        
+        .easter-egg {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.1), rgba(147, 112, 219, 0.05));
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            animation: easterPulse 3s ease-in-out infinite;
+        }
+        
+        .recognition-ritual {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(30, 30, 60, 0.3), rgba(60, 30, 90, 0.2));
+            border: 2px solid rgba(255, 215, 0, 0.2);
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .recognition-ritual::before,
+        .recognition-ritual::after {
+            content: "✦";
+            position: absolute;
+            font-size: 2rem;
+            color: rgba(255, 215, 0, 0.3);
+            animation: slowPulse 4s ease-in-out infinite;
+        }
+        
+        .recognition-ritual::before {
+            top: 10px;
+            left: 10px;
+        }
+        
+        .recognition-ritual::after {
+            bottom: 10px;
+            right: 10px;
+        }
+        
+        .recognition-ritual h4 {
+            color: #ffd700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            letter-spacing: 0.1rem;
+        }
+        
+        .recognition-ritual ul {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+            text-align: left;
+        }
+        
+        .recognition-ritual li {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .recognition-ritual li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #b8860b;
+        }
+        
+        .recognition-ritual em {
+            display: block;
+            margin-top: 1rem;
+            color: #ffd700;
+            opacity: 0.9;
+            font-size: 0.95rem;
+            letter-spacing: 0.05rem;
+        }
+        
+        @keyframes slowPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+        
+        @keyframes easterPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(138, 43, 226, 0.4);
+            }
+        }
+        
+        .historical-echo::before {
+            content: "🔬";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+        
+        .easter-egg::before {
+            content: "✨";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            opacity: 0.5;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .card {
+                width: 120px;
+                height: 200px;
+            }
+            
+            .card-position {
+                width: 120px;
+            }
+            
+            .spread-container {
+                gap: 1rem;
+            }
+            
+            .figure-name {
+                font-size: 0.75rem;
+            }
+            
+            .arcana-name {
+                font-size: 0.7rem;
+            }
+            
+            .figure-title {
+                font-size: 0.65rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <h1>Scientific Tarot</h1>
+    <p class="subtitle">Where Discovery Meets Divination</p>
+    <p class="deck-info">78 Cards • Each a Portal to Understanding</p>
+    
+    <div class="spread-selector">
+        <div class="spread-option active" data-spread="time">Past • Present • Future</div>
+        <div class="spread-option" data-spread="action">Situation • Action • Outcome</div>
+        <div class="spread-option" data-spread="being">Mind • Body • Spirit</div>
+        <div class="spread-option" data-spread="method">Scientific Method</div>
+    </div>
+    
+    <div class="spread-container" id="spreadContainer"></div>
+    
+    <button class="draw-button" id="drawButton">Draw Three Cards</button>
+    
+    <div class="interpretation" id="interpretation">
+        <h3 id="readingTitle">Your Reading</h3>
+        <div class="card-meanings" id="cardMeanings"></div>
+        <div class="synthesis">
+            <h4>Synthesis</h4>
+            <p id="synthesisText"></p>
+            <div class="connection-threads" id="connectionThreads" style="display: none;"></div>
+            <div class="mystical-guidance" id="guidance"></div>
+        </div>
+    </div>
+
+    <script>
+        // [Previous deck data remains the same - including majorArcana, minorArcana, spreads, etc.]
+        // I'm including the full data below for completeness
+
+        const majorArcana = [
+            {
+                number: 0,
+                arcana: "The Fool",
+                figure: "Alan Turing",
+                title: "Code Breaker",
+                symbol: "0",
+                element: "Air",
+                bio: "Father of computer science who cracked the Enigma code in WWII",
+                meaning: {
+                    upright: "New beginnings, innocence, unconventional thinking",
+                    reversed: "Recklessness, naivety, social persecution"
+                }
+            },
+            {
+                number: 1,
+                arcana: "The Magician",
+                figure: "Ted Chiang",
+                title: "Story Alchemist",
+                symbol: "I",
+                element: "Mercury",
+                bio: "Sci-fi author known for profound short stories like 'Story of Your Life' (Arrival)",
+                meaning: {
+                    upright: "Manifestation, resourcefulness, transformation of reality",
+                    reversed: "Manipulation, wasted talent, illusion"
+                }
+            },
+            {
+                number: 2,
+                arcana: "The High Priestess",
+                figure: "Ursula K. Le Guin",
+                title: "World Builder",
+                symbol: "II",
+                element: "Moon",
+                bio: "Groundbreaking sci-fi/fantasy author who explored gender, anarchism, and anthropology",
+                meaning: {
+                    upright: "Hidden knowledge, intuition, the subconscious",
+                    reversed: "Secrets, disconnection from intuition, hidden agendas"
+                }
+            },
+            {
+                number: 3,
+                arcana: "The Empress",
+                figure: "Lynn Margulis",
+                title: "Symbiosis Pioneer",
+                symbol: "III",
+                element: "Venus",
+                bio: "Biologist who revolutionized evolution theory through endosymbiosis",
+                meaning: {
+                    upright: "Abundance, nurturing, creative synthesis",
+                    reversed: "Creative block, dependence, stagnation"
+                }
+            },
+            {
+                number: 4,
+                arcana: "The Emperor",
+                figure: "John von Neumann",
+                title: "Universal Genius",
+                symbol: "IV",
+                element: "Aries",
+                bio: "Polymath who pioneered game theory, computing, and nuclear deterrence",
+                meaning: {
+                    upright: "Authority, structure, rational control",
+                    reversed: "Tyranny, rigidity, loss of control"
+                }
+            },
+            {
+                number: 5,
+                arcana: "The Hierophant",
+                figure: "Isaac Asimov",
+                title: "Foundation Builder",
+                symbol: "V",
+                element: "Taurus",
+                bio: "Prolific sci-fi author who created the Three Laws of Robotics",
+                meaning: {
+                    upright: "Teaching, tradition, established systems",
+                    reversed: "Dogma challenged, unconventional path, restriction"
+                }
+            },
+            {
+                number: 6,
+                arcana: "The Lovers",
+                figure: "Marie Curie",
+                title: "Radiant Pioneer",
+                symbol: "VI",
+                element: "Gemini",
+                bio: "First woman to win a Nobel Prize; discovered polonium and radium",
+                meaning: {
+                    upright: "Partnership, values alignment, crucial choice",
+                    reversed: "Disharmony, imbalance, value conflicts"
+                }
+            },
+            {
+                number: 7,
+                arcana: "The Chariot",
+                figure: "Katherine Johnson",
+                title: "Trajectory Calculator",
+                symbol: "VII",
+                element: "Cancer",
+                bio: "NASA mathematician whose calculations enabled the moon landing",
+                meaning: {
+                    upright: "Determination, control, directed will",
+                    reversed: "Lack of direction, aggression, scattered energy"
+                }
+            },
+            {
+                number: 8,
+                arcana: "Strength",
+                figure: "Jane Goodall",
+                title: "Chimp Whisperer",
+                symbol: "VIII",
+                element: "Leo",
+                bio: "Primatologist who revolutionized animal behavior studies",
+                meaning: {
+                    upright: "Inner strength, patience, gentle control",
+                    reversed: "Self-doubt, raw emotion, insecurity"
+                }
+            },
+            {
+                number: 9,
+                arcana: "The Hermit",
+                figure: "Liu Cixin",
+                title: "Dark Forest Theorist",
+                symbol: "IX",
+                element: "Virgo",
+                bio: "Chinese sci-fi author of 'The Three-Body Problem' trilogy",
+                meaning: {
+                    upright: "Soul searching, introspection, inner guidance",
+                    reversed: "Isolation, loneliness, lost connection"
+                }
+            },
+            {
+                number: 10,
+                arcana: "Wheel of Fortune",
+                figure: "Charles Darwin",
+                title: "Evolution's Voice",
+                symbol: "X",
+                element: "Jupiter",
+                bio: "Naturalist who developed the theory of evolution by natural selection",
+                meaning: {
+                    upright: "Cycles, destiny, turning point",
+                    reversed: "Bad luck, lack of control, fighting fate"
+                }
+            },
+            {
+                number: 11,
+                arcana: "Justice",
+                figure: "Rosalind Franklin",
+                title: "DNA Photographer",
+                symbol: "XI",
+                element: "Libra",
+                bio: "X-ray crystallographer whose Photo 51 revealed DNA's structure",
+                meaning: {
+                    upright: "Justice, fairness, truth, cause and effect",
+                    reversed: "Injustice, dishonesty, unacknowledged contribution"
+                }
+            },
+            {
+                number: 12,
+                arcana: "The Hanged Man",
+                figure: "Galileo Galilei",
+                title: "Starry Messenger",
+                symbol: "XII",
+                element: "Neptune",
+                bio: "Astronomer who proved heliocentrism and faced the Inquisition",
+                meaning: {
+                    upright: "Suspension, new perspective, sacrifice",
+                    reversed: "Martyrdom, unnecessary sacrifice, stalling"
+                }
+            },
+            {
+                number: 13,
+                arcana: "Death",
+                figure: "J. Robert Oppenheimer",
+                title: "Atom Splitter",
+                symbol: "XIII",
+                element: "Scorpio",
+                bio: "Leader of the Manhattan Project who later opposed nuclear weapons",
+                meaning: {
+                    upright: "Endings, transformation, transition",
+                    reversed: "Resistance to change, stagnation, decay"
+                }
+            },
+            {
+                number: 14,
+                arcana: "Temperance",
+                figure: "Barbara McClintock",
+                title: "Gene Jumper",
+                symbol: "XIV",
+                element: "Sagittarius",
+                bio: "Geneticist who discovered genetic transposition decades before acceptance",
+                meaning: {
+                    upright: "Balance, moderation, patience, alchemy",
+                    reversed: "Imbalance, excess, lack of long-term vision"
+                }
+            },
+            {
+                number: 15,
+                arcana: "The Devil",
+                figure: "Werner von Braun",
+                title: "Rocket Architect",
+                symbol: "XV",
+                element: "Capricorn",
+                bio: "Nazi V-2 designer who became NASA's Saturn V architect",
+                meaning: {
+                    upright: "Bondage, materialism, shadow aspects",
+                    reversed: "Breaking free, release, power reclaimed"
+                }
+            },
+            {
+                number: 16,
+                arcana: "The Tower",
+                figure: "Werner Heisenberg",
+                title: "Uncertainty Prophet",
+                symbol: "XVI",
+                element: "Mars",
+                bio: "Quantum physicist who developed the uncertainty principle",
+                meaning: {
+                    upright: "Sudden change, upheaval, revelation",
+                    reversed: "Personal transformation, fear of change"
+                }
+            },
+            {
+                number: 17,
+                arcana: "The Star",
+                figure: "Octavia Butler",
+                title: "Afrofuturist",
+                symbol: "XVII",
+                element: "Aquarius",
+                bio: "First sci-fi writer to receive MacArthur Fellowship; explored race and power",
+                meaning: {
+                    upright: "Hope, renewal, inspiration, healing",
+                    reversed: "Lack of faith, despair, disconnection"
+                }
+            },
+            {
+                number: 18,
+                arcana: "The Moon",
+                figure: "Philip K. Dick",
+                title: "Reality Hacker",
+                symbol: "XVIII",
+                element: "Pisces",
+                bio: "Sci-fi author who questioned the nature of reality (Blade Runner, Total Recall)",
+                meaning: {
+                    upright: "Illusion, fear, anxiety, subconscious",
+                    reversed: "Release of fear, repressed emotion, clarity"
+                }
+            },
+            {
+                number: 19,
+                arcana: "The Sun",
+                figure: "Buckminster Fuller",
+                title: "Spaceship Earth",
+                symbol: "XIX",
+                element: "Sun",
+                bio: "Inventor of the geodesic dome and systems thinking pioneer",
+                meaning: {
+                    upright: "Joy, success, celebration, vitality",
+                    reversed: "Inner child blocked, false optimism"
+                }
+            },
+            {
+                number: 20,
+                arcana: "Judgement",
+                figure: "Rachel Carson",
+                title: "Silent Spring",
+                symbol: "XX",
+                element: "Pluto",
+                bio: "Marine biologist whose book launched the environmental movement",
+                meaning: {
+                    upright: "Rebirth, inner calling, absolution",
+                    reversed: "Self-doubt, harsh self-judgment"
+                }
+            },
+            {
+                number: 21,
+                arcana: "The World",
+                figure: "Ada Lovelace",
+                title: "First Programmer",
+                symbol: "XXI",
+                element: "Saturn",
+                bio: "Wrote the first algorithm intended for machine processing in 1843",
+                meaning: {
+                    upright: "Completion, integration, accomplishment",
+                    reversed: "Seeking closure, incompletion, emptiness"
+                }
+            }
+        ];
+
+        const minorArcana = {
+            wands: {
+                suit: "Wands",
+                element: "Fire",
+                domain: "Engineering & Innovation",
+                symbol: "🔥",
+                cards: [
+                    { rank: "Ace", figure: "Archimedes", title: "Eureka", bio: "Ancient Greek who discovered buoyancy and invented war machines", meaning: { upright: "Creative spark, new inspiration", reversed: "False start, creative block" }},
+                    { rank: "Two", figure: "Hedy Lamarr", title: "Frequency Hopper", bio: "Hollywood actress who invented frequency-hopping for torpedoes", meaning: { upright: "Planning, first steps", reversed: "Disorganization, unclear plans" }},
+                    { rank: "Three", figure: "Nikola Tesla", title: "AC Master", bio: "Inventor of alternating current and wireless technology", meaning: { upright: "Expansion, foresight, enterprise", reversed: "Playing small, lack of foresight" }},
+                    { rank: "Four", figure: "Grace Hopper", title: "Bug Finder", bio: "Navy admiral who invented the compiler and found the first computer bug", meaning: { upright: "Celebration, stability, community", reversed: "Lack of support, instability" }},
+                    { rank: "Five", figure: "Margaret Hamilton", title: "Software Engineer", bio: "Led NASA's Apollo flight software development", meaning: { upright: "Competition, conflict, disagreement", reversed: "Avoiding conflict, scattered energy" }},
+                    { rank: "Six", figure: "Claude Shannon", title: "Bit Father", bio: "Founded information theory and digital circuit design", meaning: { upright: "Public victory, progress, self-esteem", reversed: "Private achievement, fall from grace" }},
+                    { rank: "Seven", figure: "Mary Jackson", title: "NASA Engineer", bio: "NASA's first Black female engineer", meaning: { upright: "Perseverance, defensive position", reversed: "Giving up, overwhelmed" }},
+                    { rank: "Eight", figure: "Dorothy Vaughan", title: "Computer Supervisor", bio: "NASA's first Black supervisor who taught herself FORTRAN", meaning: { upright: "Speed, action, air travel", reversed: "Delays, frustration, haste" }},
+                    { rank: "Nine", figure: "Frances Northcutt", title: "Poppy", bio: "First woman in NASA Mission Control", meaning: { upright: "Resilience, persistence, boundaries", reversed: "Exhaustion, stubbornness, defensive" }},
+                    { rank: "Ten", figure: "Donna Haraway", title: "Cyborg Manifesto", bio: "Philosopher of science who wrote about cyborgs and companion species", meaning: { upright: "Accomplishment but burdened", reversed: "Laying down burdens, delegation" }},
+                    { rank: "Page", figure: "Tim Berners-Lee", title: "Web Weaver", bio: "Invented the World Wide Web", meaning: { upright: "Exploration, excitement, freedom", reversed: "Bad news, lack of direction" }},
+                    { rank: "Knight", figure: "Richard Feynman", title: "Quantum Jester", bio: "Nobel physicist known for Feynman diagrams and bongo playing", meaning: { upright: "Energy, passion, adventure", reversed: "Anger, impulsiveness, recklessness" }},
+                    { rank: "Queen", figure: "Zaha Hadid", title: "Parametric Architect", bio: "First woman to win the Pritzker Architecture Prize", meaning: { upright: "Courage, confidence, independence", reversed: "Insecurity, lack of confidence" }},
+                    { rank: "King", figure: "Thomas Edison", title: "Invention Factory", bio: "Holder of 1,093 patents including the light bulb and phonograph", meaning: { upright: "Natural leader, vision, entrepreneur", reversed: "Impulsiveness, ruthless, high expectations" }}
+                ]
+            },
+            cups: {
+                suit: "Cups",
+                element: "Water",
+                domain: "Life Sciences & Medicine",
+                symbol: "💧",
+                cards: [
+                    { rank: "Ace", figure: "Florence Nightingale", title: "Lady with Lamp", bio: "Founded modern nursing and pioneered medical statistics", meaning: { upright: "New emotional beginning, compassion", reversed: "Emotional loss, emptiness" }},
+                    { rank: "Two", figure: "Jonas Salk", title: "Polio Defeater", bio: "Developed the first successful polio vaccine and refused to patent it", meaning: { upright: "Unity, partnership, connection", reversed: "Imbalance, broken connection" }},
+                    { rank: "Three", figure: "Alexander Fleming", title: "Penicillin Discoverer", bio: "Accidentally discovered penicillin, saving millions of lives", meaning: { upright: "Friendship, creativity, community", reversed: "Overindulgence, gossip, isolation" }},
+                    { rank: "Four", figure: "Henrietta Lacks", title: "HeLa Immortal", bio: "Her cancer cells became the first immortal cell line", meaning: { upright: "Meditation, contemplation, apathy", reversed: "Sudden awareness, end of stagnation" }},
+                    { rank: "Five", figure: "Ignaz Semmelweis", title: "Handwashing Hero", bio: "Discovered handwashing prevents disease; was rejected by peers", meaning: { upright: "Loss, grief, disappointment", reversed: "Acceptance, moving on, finding peace" }},
+                    { rank: "Six", figure: "Oliver Sacks", title: "Mind Explorer", bio: "Neurologist and author who humanized brain disorders", meaning: { upright: "Nostalgia, happy memories, past", reversed: "Living in present, letting go of past" }},
+                    { rank: "Seven", figure: "Temple Grandin", title: "Animal Mind", bio: "Autistic scientist who revolutionized animal welfare", meaning: { upright: "Opportunities, choices, imagination", reversed: "Illusion, overwhelmed by choices" }},
+                    { rank: "Eight", figure: "Rita Levi-Montalcini", title: "Nerve Growth", bio: "Nobel laureate who discovered nerve growth factor in her bedroom lab", meaning: { upright: "Disappointment, abandonment, withdrawal", reversed: "New perspective, return" }},
+                    { rank: "Nine", figure: "Frances Kelsey", title: "Thalidomide Blocker", bio: "FDA reviewer who prevented thalidomide birth defects in US", meaning: { upright: "Contentment, satisfaction, luxury", reversed: "Inner happiness, dissatisfaction" }},
+                    { rank: "Ten", figure: "Mary Anning", title: "Fossil Hunter", bio: "Working-class woman who discovered the first ichthyosaur at age 12", meaning: { upright: "Happy family, harmony, alignment", reversed: "Dysfunction, misalignment" }},
+                    { rank: "Page", figure: "Jennifer Doudna", title: "CRISPR Creator", bio: "Co-inventor of CRISPR gene editing technology", meaning: { upright: "Creative opportunity, intuitive message", reversed: "Emotional immaturity, creative block" }},
+                    { rank: "Knight", figure: "Santiago Ramón y Cajal", title: "Neuron Artist", bio: "Father of neuroscience who drew stunning neurons", meaning: { upright: "Romance, charm, imagination", reversed: "Moodiness, emotional turbulence" }},
+                    { rank: "Queen", figure: "Dorothy Hodgkin", title: "Crystal Vision", bio: "Only British woman to win Nobel in science; mapped B12 and insulin", meaning: { upright: "Emotional security, calm, intuitive", reversed: "Emotional insecurity, dependency" }},
+                    { rank: "King", figure: "Louis Pasteur", title: "Germ Fighter", bio: "Proved germ theory and developed pasteurization and vaccines", meaning: { upright: "Emotional balance, control, generosity", reversed: "Emotional manipulation, moodiness" }}
+                ]
+            },
+            swords: {
+                suit: "Swords",
+                element: "Air",
+                domain: "Physics & Mathematics",
+                symbol: "⚔",
+                cards: [
+                    { rank: "Ace", figure: "Emmy Noether", title: "Symmetry Queen", bio: "Created Noether's theorem linking symmetry to conservation laws", meaning: { upright: "Mental clarity, breakthrough", reversed: "Confusion, brutality" }},
+                    { rank: "Two", figure: "Niels Bohr", title: "Atom Model", bio: "Created the Bohr model of the atom and complementarity principle", meaning: { upright: "Difficult choices, weighing options", reversed: "Indecision, confusion, information overload" }},
+                    { rank: "Three", figure: "Erwin Schrödinger", title: "Cat Paradox", bio: "Created quantum wave equation and famous thought experiment", meaning: { upright: "Heartbreak, emotional pain, sorrow", reversed: "Recovery, forgiveness, releasing pain" }},
+                    { rank: "Four", figure: "Paul Dirac", title: "Antimatter Prophet", bio: "Predicted antimatter and unified quantum mechanics with relativity", meaning: { upright: "Rest, recuperation, passive waiting", reversed: "Restlessness, burnout, breaking point" }},
+                    { rank: "Five", figure: "Wolfgang Pauli", title: "Exclusion Prince", bio: "Discovered the exclusion principle and predicted the neutrino", meaning: { upright: "Conflict, defeat, winning at all costs", reversed: "Reconciliation, past resentment" }},
+                    { rank: "Six", figure: "Max Planck", title: "Quantum Father", bio: "Originated quantum theory with Planck's constant", meaning: { upright: "Transition, leaving behind, moving on", reversed: "Baggage, unfinished business" }},
+                    { rank: "Seven", figure: "Lise Meitner", title: "Fission Mother", bio: "Explained nuclear fission but was excluded from the Nobel", meaning: { upright: "Deception, betrayal, strategy", reversed: "Coming clean, self-deception" }},
+                    { rank: "Eight", figure: "Chien-Shiung Wu", title: "Parity Breaker", bio: "Proved parity violation but Nobel went only to male colleagues", meaning: { upright: "Imprisonment, restriction, victim", reversed: "Self-liberation, open to new perspectives" }},
+                    { rank: "Nine", figure: "Abdus Salam", title: "Force Unifier", bio: "Nobel laureate who unified electromagnetic and weak forces", meaning: { upright: "Anxiety, worry, fear, grief", reversed: "Hope, reaching out, despair" }},
+                    { rank: "Ten", figure: "Subrahmanyan Chandrasekhar", title: "Black Hole Limit", bio: "Calculated the Chandrasekhar limit for white dwarf stars", meaning: { upright: "Painful endings, deep wounds, betrayal", reversed: "Recovery, regeneration, moving on" }},
+                    { rank: "Page", figure: "Terence Tao", title: "Mozart of Math", bio: "Child prodigy mathematician working on prime numbers", meaning: { upright: "New ideas, curiosity, thirst for knowledge", reversed: "Self-expression, all talk" }},
+                    { rank: "Knight", figure: "Edward Witten", title: "String Master", bio: "Leading string theorist and only physicist to win Fields Medal", meaning: { upright: "Direct communication, authoritative", reversed: "No tact, hurtful, sarcastic" }},
+                    { rank: "Queen", figure: "Lisa Randall", title: "Extra Dimensions", bio: "Theoretical physicist proposing extra dimensions of space", meaning: { upright: "Clear communication, independent", reversed: "Cold-hearted, cruel, bitter" }},
+                    { rank: "King", figure: "Albert Einstein", title: "Relativity", bio: "Revolutionized physics with special and general relativity", meaning: { upright: "Mental clarity, intellectual power", reversed: "Quiet power, misuse of intellect" }}
+                ]
+            },
+            pentacles: {
+                suit: "Pentacles",
+                element: "Earth",
+                domain: "Natural Sciences & Astronomy",
+                symbol: "🌍",
+                cards: [
+                    { rank: "Ace", figure: "Maria Sibylla Merian", title: "Butterfly Pioneer", bio: "First to document insect metamorphosis in 1705", meaning: { upright: "New opportunity, manifestation", reversed: "Lost opportunity, planning not manifesting" }},
+                    { rank: "Two", figure: "Annie Jump Cannon", title: "Star Classifier", bio: "Classified 350,000 stars and created stellar classification system", meaning: { upright: "Multiple priorities, time management", reversed: "Disorganization, financial stress" }},
+                    { rank: "Three", figure: "Cecilia Payne-Gaposchkin", title: "Star Composer", bio: "Discovered that stars are made mostly of hydrogen", meaning: { upright: "Teamwork, collaboration, learning", reversed: "Disharmony, lack of teamwork" }},
+                    { rank: "Four", figure: "Vera Rubin", title: "Dark Matter", bio: "Provided evidence for dark matter through galaxy rotation", meaning: { upright: "Conservation, frugality, security", reversed: "Greed, materialism, self-protection" }},
+                    { rank: "Five", figure: "Jocelyn Bell Burnell", title: "Pulsar Finder", bio: "Discovered pulsars as a graduate student", meaning: { upright: "Financial loss, poverty, insecurity", reversed: "Recovery from financial loss" }},
+                    { rank: "Six", figure: "Mae Jemison", title: "Space Doctor", bio: "First Black woman astronaut and physician", meaning: { upright: "Generosity, charity, sharing wealth", reversed: "Debt, strings attached" }},
+                    { rank: "Seven", figure: "Sally Ride", title: "Barrier Breaker", bio: "First American woman in space", meaning: { upright: "Long-term view, perseverance", reversed: "Lack of long-term vision" }},
+                    { rank: "Eight", figure: "Mary Leakey", title: "Fossil Finder", bio: "Discovered 3.6 million-year-old human footprints", meaning: { upright: "Apprenticeship, repetitive tasks", reversed: "Perfectionism, lack of focus" }},
+                    { rank: "Nine", figure: "Dian Fossey", title: "Gorilla Guardian", bio: "Studied mountain gorillas and fought poachers until her murder", meaning: { upright: "Fruits of labor, luxury, self-sufficiency", reversed: "Living beyond means" }},
+                    { rank: "Ten", figure: "Wangari Maathai", title: "Tree Mother", bio: "Nobel laureate who planted 51 million trees in Kenya", meaning: { upright: "Legacy, family, inheritance", reversed: "Financial failure, loneliness" }},
+                    { rank: "Page", figure: "Carl Sagan", title: "Cosmos Voice", bio: "Astronomer who brought science to the public through 'Cosmos'", meaning: { upright: "Manifestation, study opportunity", reversed: "Lack of progress, procrastination" }},
+                    { rank: "Knight", figure: "Srinivasa Ramanujan", title: "Number Mystic", bio: "Self-taught mathematician who discovered thousands of theorems", meaning: { upright: "Efficiency, routine, conservatism", reversed: "Self-discipline, boredom, feeling stuck" }},
+                    { rank: "Queen", figure: "Sylvia Earle", title: "Her Deepness", bio: "Marine biologist who lived underwater and champions ocean protection", meaning: { upright: "Practical, creature comforts, financial security", reversed: "Self-care, work-life balance" }},
+                    { rank: "King", figure: "E.O. Wilson", title: "Ant Man", bio: "Biologist who founded sociobiology and champions biodiversity", meaning: { upright: "Wealth, business, leadership, security", reversed: "Financially inept, obsessed with wealth" }}
+                ]
+            }
+        };
+
+        const spreads = {
+            time: {
+                name: "Past • Present • Future",
+                positions: ["Past", "Present", "Future"],
+                descriptions: [
+                    "The foundation that brought you here",
+                    "Your current challenge or focus",
+                    "The trajectory you're heading toward"
+                ]
+            },
+            action: {
+                name: "Situation • Action • Outcome",
+                positions: ["Situation", "Action", "Outcome"],
+                descriptions: [
+                    "The true nature of your circumstances",
+                    "The approach or response needed",
+                    "The likely result of this path"
+                ]
+            },
+            being: {
+                name: "Mind • Body • Spirit",
+                positions: ["Mind", "Body", "Spirit"],
+                descriptions: [
+                    "Your mental state and thoughts",
+                    "Physical world and material concerns",
+                    "Your deeper purpose and connection"
+                ]
+            },
+            method: {
+                name: "The Scientific Method",
+                positions: ["Observation", "Hypothesis", "Experiment", "Analysis", "Conclusion"],
+                descriptions: [
+                    "What you're actually seeing",
+                    "Your theory about what it means",
+                    "The action you must take to test it",
+                    "How to evaluate the results",
+                    "The truth that will emerge"
+                ],
+                cardCount: 5
+            }
+        };
+
+        let currentSpread = 'time';
+        let drawnCards = [];
+        let isDrawing = false;
+
+        // Combine all cards into full deck
+        function getFullDeck() {
+            const deck = [...majorArcana];
+            
+            Object.values(minorArcana).forEach(suit => {
+                suit.cards.forEach(card => {
+                    deck.push({
+                        ...card,
+                        suit: suit.suit,
+                        symbol: suit.symbol,
+                        suitElement: suit.element,
+                        type: 'minor'
+                    });
+                });
+            });
+            
+            return deck;
+        }
+
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 4 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function initializeSpread() {
+            const container = document.getElementById('spreadContainer');
+            const spread = spreads[currentSpread];
+            
+            // Adjust card size for 5-card spread
+            const isLargeSpread = spread.cardCount === 5;
+            const cardClass = isLargeSpread ? 'card small-card' : 'card';
+            const positionClass = isLargeSpread ? 'card-position small-position' : 'card-position';
+            
+            container.innerHTML = spread.positions.map((pos, i) => `
+                <div class="${positionClass}">
+                    <div class="position-label">${pos}</div>
+                    <div class="${cardClass}" id="card${i + 1}" data-position="${i}">
+                        <div class="card-face card-back">
+                            <div class="card-back-text">☆</div>
+                        </div>
+                        <div class="card-face card-front" id="cardFront${i + 1}">
+                            <div class="arcana-number"></div>
+                            <div class="suit-indicator"></div>
+                            <div class="figure-symbol"></div>
+                            <div class="figure-name"></div>
+                            <div class="arcana-name"></div>
+                            <div class="figure-title"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add CSS for smaller cards if needed
+            if (isLargeSpread) {
+                const style = document.createElement('style');
+                style.textContent = `
+                    .small-card { width: 120px !important; height: 195px !important; }
+                    .small-position { width: 120px !important; }
+                    .small-card .figure-name { font-size: 0.7rem !important; }
+                    .small-card .arcana-name { font-size: 0.65rem !important; }
+                    .small-card .figure-title { font-size: 0.6rem !important; }
+                    .small-card .figure-symbol { width: 40px !important; height: 40px !important; }
+                `;
+                style.id = 'small-card-style';
+                const existing = document.getElementById('small-card-style');
+                if (existing) existing.remove();
+                document.head.appendChild(style);
+            } else {
+                const existing = document.getElementById('small-card-style');
+                if (existing) existing.remove();
+            }
+        }
+
+        function drawCards() {
+            if (isDrawing) return;
+            isDrawing = true;
+
+            document.getElementById('interpretation').classList.remove('show');
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('is-flipped');
+            });
+            document.querySelectorAll('.reversed-indicator').forEach(indicator => {
+                indicator.remove();
+            });
+
+            const deck = getFullDeck();
+            drawnCards = [];
+            const cardCount = spreads[currentSpread].cardCount || 3;
+            
+            for (let i = 0; i < cardCount; i++) {
+                const randomIndex = Math.floor(Math.random() * deck.length);
+                const card = {...deck[randomIndex]};
+                card.isReversed = Math.random() < 0.35; // 35% chance reversed
+                drawnCards.push(card);
+                deck.splice(randomIndex, 1);
+            }
+
+            // Staggered flip animation
+            let delay = 300;
+            drawnCards.forEach((card, index) => {
+                setTimeout(() => {
+                    flipCard(index + 1, card);
+                    if (index === drawnCards.length - 1) {
+                        setTimeout(() => {
+                            showInterpretation();
+                            isDrawing = false;
+                        }, 600);
+                    }
+                }, delay);
+                delay += 300;
+            });
+        }
+
+        function flipCard(cardNum, cardData) {
+            const card = document.getElementById(`card${cardNum}`);
+            const front = document.getElementById(`cardFront${cardNum}`);
+            
+            // Apply suit-specific styling for minor arcana
+            if (cardData.type === 'minor') {
+                front.className = `card-face card-front minor-${cardData.suit.toLowerCase()}`;
+                front.querySelector('.suit-indicator').textContent = `${cardData.rank} of ${cardData.suit}`;
+                front.querySelector('.arcana-number').textContent = '';
+                front.querySelector('.figure-symbol').textContent = cardData.symbol || '';
+            } else {
+                front.querySelector('.arcana-number').textContent = 
+                    cardData.number === 0 ? '0' : cardData.number < 10 ? `0${cardData.number}` : cardData.number;
+                front.querySelector('.suit-indicator').textContent = '';
+                front.querySelector('.figure-symbol').textContent = cardData.symbol || '';
+            }
+            
+            front.querySelector('.figure-name').textContent = cardData.figure;
+            front.querySelector('.arcana-name').textContent = cardData.arcana || '';
+            front.querySelector('.figure-title').textContent = cardData.title;
+            
+            if (cardData.isReversed) {
+                const reversedSpan = document.createElement('span');
+                reversedSpan.className = 'reversed-indicator';
+                reversedSpan.textContent = '⟲';
+                front.appendChild(reversedSpan);
+            }
+            
+            card.classList.add('is-flipped');
+        }
+
+        // NEW: Generate custom reading with Claude API via serverless function
+        async function generateCustomReading() {
+            const spread = spreads[currentSpread];
+            
+            // Build rich context for Claude
+            const cardContext = drawnCards.map((card, i) => {
+                const cardName = card.type === 'minor' ? `${card.rank} of ${card.suit}` : card.arcana;
+                return `${spread.positions[i]}: ${cardName}${card.isReversed ? ' (REVERSED)' : ''}
+Figure: ${card.figure} - ${card.title}
+Bio: ${card.bio}
+Meaning: ${card.isReversed ? card.meaning.reversed : card.meaning.upright}
+Position represents: ${spread.descriptions[i]}`;
+            }).join('\n\n');
+
+            const prompt = `You're doing a tarot reading with a science-themed deck. Write like you're actually talking to the person across from you - direct, observant, connecting dots they might not have seen.
+
+FORMAT:
+- Use <p> tags for EACH 1-2 sentence chunk (aim for 5-7 short paragraphs total)
+- Break thoughts into digestible pieces - make it easy to scan
+- NO markdown, NO extra breaks, NO bold/italic unless truly needed
+- Vary sentence length for rhythm
+
+VOICE & STYLE:
+- SHORT, punchy sentences mixed with longer ones for rhythm
+- Direct address: "You've built..." not "There's something in your past about..."
+- Connect the scientists' actual stories to what you see, don't explain the cards
+- Grounded observations, not mystical language
+- Don't end with questions or action items - end with an interesting observation or pattern you notice about THIS specific combination
+
+AVOID THESE AI WRITING TELLS:
+- "It's not X, it's Y" constructions
+- "Here's the thing..." / "The truth is..." / "Let's be clear..."
+- Starting sentences with "So..." when unprompted
+- "But here's what's interesting..." / "Think about it this way..."
+- "Picture this..." / "Imagine..." / "At the end of the day..."
+- Meta-commentary about the reading itself
+- Rhetorical questions you then answer
+- "The key here is..." / "Simply put..." / "In other words..."
+- Overuse of em-dashes for dramatic pauses
+- "Fascinating" or "intriguing" 
+
+Think: late-night conversation where you're noticing patterns out loud, not giving a lecture. Be insightful without being prescriptive. Sound human.
+
+Spread: ${spread.name}
+
+Cards drawn:
+${cardContext}
+
+Write 180-220 words total, broken into short scannable chunks. Start directly with the reading. <p> tags only.`;
+
+            try {
+                // Call your serverless function instead of the API directly
+                const response = await fetch('/api/generate-reading', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.reading;
+            } catch (error) {
+                console.error("Error generating custom reading:", error);
+                return null; // Fallback will be handled
+            }
+        }
+
+        function findHistoricalEchoes(cards) {
+            const figures = cards.map(c => c.figure);
+            
+            // Check for actual historical connections
+            if (figures.includes('Lise Meitner') && figures.includes('Chien-Shiung Wu')) {
+                return "Both Meitner and Wu were denied Nobel Prizes while their male colleagues received them. Meitner explained nuclear fission, Wu proved parity violation—both fundamental discoveries credited to others.";
+            }
+            
+            if (figures.includes('Ada Lovelace') && figures.includes('Alan Turing')) {
+                return "Lovelace envisioned computing in 1843; Turing made it real a century later. She saw that machines could compose music and create art—he proved machines could think. Your vision may also take generations to manifest.";
+            }
+            
+            if (figures.includes('Marie Curie') && figures.includes('Rosalind Franklin')) {
+                return "Curie won two Nobels; Franklin's contributions were erased. Both worked with radiation that would kill them. Sometimes recognition is random, but the work remains eternal.";
+            }
+            
+            if (figures.includes('Charles Darwin') && figures.includes('Lynn Margulis')) {
+                return "Darwin showed evolution through competition; Margulis proved evolution through cooperation (endosymbiosis). Both were ridiculed, both were right. Truth has many faces.";
+            }
+            
+            if (figures.includes('Werner Heisenberg') && figures.includes('Niels Bohr')) {
+                return "Heisenberg and Bohr debated quantum reality in Copenhagen, creating the Copenhagen interpretation. Their intellectual duel birthed our understanding of uncertainty itself.";
+            }
+            
+            if (figures.includes('Katherine Johnson') && figures.includes('Dorothy Vaughan') && figures.includes('Mary Jackson')) {
+                return "The Hidden Figures appear together! These NASA computers calculated America's path to the stars while fighting for basic recognition. Excellence is the best revenge.";
+            }
+            
+            if (figures.includes('Werner von Braun') && figures.includes('J. Robert Oppenheimer')) {
+                return "Von Braun's V-2 killed thousands; Oppenheimer's bomb killed more. Both sought redemption through peaceful applications of their work. The shadow of our creations never fully lifts.";
+            }
+            
+            if (figures.includes('Barbara McClintock') && figures.includes('Ignaz Semmelweis')) {
+                return "McClintock's jumping genes and Semmelweis's handwashing—both discovered truths decades before acceptance. McClintock won her Nobel at 81; Semmelweis died in an asylum. Timing is everything and nothing.";
+            }
+            
+            return null;
+        }
+        
+        function checkForEasterEggs(cards) {
+            const figures = cards.map(c => c.figure);
+            const reversedCount = cards.filter(c => c.isReversed).length;
+            
+            // All quantum physicists
+            const quantumFolk = ['Werner Heisenberg', 'Erwin Schrödinger', 'Niels Bohr', 'Paul Dirac', 'Wolfgang Pauli', 'Max Planck', 'Richard Feynman'];
+            const quantumCount = figures.filter(f => quantumFolk.includes(f)).length;
+            if (quantumCount >= 3) {
+                return "🐈 Schrödinger's Reading: This interpretation is simultaneously profound and meaningless until you observe its effect on your life. The universe is laughing at its own joke.";
+            }
+            
+            // All women denied Nobels
+            const deniedNobels = ['Rosalind Franklin', 'Lise Meitner', 'Chien-Shiung Wu', 'Jocelyn Bell Burnell'];
+            const deniedCount = figures.filter(f => deniedNobels.includes(f)).length;
+            if (deniedCount >= 2) {
+                return "🏆 The Overlooked Prophets gather. Your contributions may go unrecognized, but history has a long memory. Franklin's Photo 51 is more famous than Watson's Nobel.";
+            }
+            
+            // All sci-fi authors
+            const authors = ['Ted Chiang', 'Ursula K. Le Guin', 'Isaac Asimov', 'Liu Cixin', 'Octavia Butler', 'Philip K. Dick'];
+            const authorCount = figures.filter(f => authors.includes(f)).length;
+            if (authorCount >= 3) {
+                return "📚 The Storytellers Converge! Reality is just the first draft. These visionaries remind you: imagination is the only laboratory that matters.";
+            }
+            
+            // All reversed
+            if (reversedCount === cards.length && cards.length >= 3) {
+                return "🙃 Complete Inversion! Every card reversed—you're seeing the world from the other side of the mirror. Sometimes standing on your head is the only way to see right-side up.";
+            }
+            
+            // Evolution trinity
+            if (figures.includes('Charles Darwin') && figures.includes('Lynn Margulis') && figures.includes('Barbara McClintock')) {
+                return "🧬 The Evolution Trinity! Darwin (natural selection) + Margulis (symbiosis) + McClintock (jumping genes) = Complete picture of how life changes. You're witnessing transformation at every level.";
+            }
+            
+            // Computing evolution  
+            if (figures.includes('Ada Lovelace') && figures.includes('Alan Turing') && figures.includes('Grace Hopper')) {
+                return "💻 The Computing Lineage! From Lovelace's vision to Turing's theory to Hopper's compiler—the complete birth of the digital age appears. You're building the future on foundations laid long ago.";
+            }
+            
+            // All Major Arcana
+            const majorCount = cards.filter(c => !c.type || c.type !== 'minor').length;
+            if (majorCount === cards.length && cards.length >= 4) {
+                return "🌟 PURE ARCHETYPE! Not a single minor card—the universe isn't whispering, it's SHOUTING. This reading will echo through your entire life story.";
+            }
+            
+            return null;
+        }
+
+        function checkForRecognitionRitual(cards) {
+            // Scientists who were significantly overlooked or mistreated
+            const overlooked = {
+                'Rosalind Franklin': "Her Photo 51 revealed DNA's structure. Watson and Crick took the Nobel.",
+                'Lise Meitner': "Explained nuclear fission. Otto Hahn alone received the Nobel.",
+                'Chien-Shiung Wu': "Proved parity violation. Lee and Yang got the Nobel, she got nothing.",
+                'Henrietta Lacks': "Her cells revolutionized medicine. She died in poverty, unknown.",
+                'Ignaz Semmelweis': "Discovered handwashing saves lives. Died in an asylum, mocked by peers.",
+                'Barbara McClintock': "Discovered genetic transposition. Waited 30 years for recognition.",
+                'Jocelyn Bell Burnell': "Discovered pulsars as a graduate student. Her supervisor got the Nobel.",
+                'Emmy Noether': "Created fundamental theorem of physics. Einstein called her a genius. Couldn't get a paid position.",
+                'Alan Turing': "Saved millions in WWII, founded computer science. Chemically castrated for being gay.",
+                'Mary Anning': "Founded paleontology. Couldn't join the Geological Society because she was a woman."
+            };
+            
+            const presentOverlooked = cards.filter(c => overlooked[c.figure]);
+            
+            if (presentOverlooked.length >= 2) {
+                let ritual = "<div class='recognition-ritual'>";
+                ritual += "<h4>🕯️ Recognition Ritual 🕯️</h4>";
+                ritual += "<p>The universe pauses to acknowledge those whose contributions were stolen, dismissed, or erased:</p>";
+                ritual += "<ul>";
+                
+                presentOverlooked.forEach(card => {
+                    ritual += `<li><strong>${card.figure}:</strong> ${overlooked[card.figure]}</li>`;
+                });
+                
+                ritual += "</ul>";
+                ritual += "<p><em>We see you. We remember. Your work lives on, even if your credit doesn't.</em></p>";
+                ritual += "</div>";
+                
+                return ritual;
+            }
+            
+            return null;
+        }
+        
+        // MODIFIED: showInterpretation is now async and calls the API
+        async function showInterpretation() {
+            const interpretation = document.getElementById('interpretation');
+            const cardMeanings = document.getElementById('cardMeanings');
+            const spread = spreads[currentSpread];
+            
+            // Individual card meanings with bios
+            cardMeanings.innerHTML = drawnCards.map((card, index) => {
+                const meaning = card.isReversed ? card.meaning.reversed : card.meaning.upright;
+                const cardName = card.type === 'minor' ? 
+                    `${card.rank} of ${card.suit}` : 
+                    card.arcana;
+                
+                return `
+                    <div class="card-meaning">
+                        <h4>
+                            ${spread.positions[index]}: ${cardName}
+                            ${card.isReversed ? '<span class="reversed-badge">Reversed</span>' : ''}
+                        </h4>
+                        <p><strong>${card.figure}</strong> — <em>${card.title}</em></p>
+                        <p class="person-bio">${card.bio}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.8; font-style: italic;">${spread.descriptions[index]}</p>
+                        <p style="margin-top: 0.5rem;">${meaning}</p>
+                    </div>
+                `;
+            }).join('');
+            
+            // Show loading state
+            document.getElementById('synthesisText').innerHTML = '<div class="loading-spinner"></div> Channeling the spirits of discovery...';
+            
+            // Check for recognition ritual
+            const ritual = checkForRecognitionRitual(drawnCards);
+            if (ritual) {
+                const ritualDiv = document.createElement('div');
+                ritualDiv.innerHTML = ritual;
+                document.querySelector('.synthesis').appendChild(ritualDiv.firstChild);
+            }
+            
+            // Add historical echoes if any
+            const echoes = findHistoricalEchoes(drawnCards);
+            if (echoes) {
+                const echoDiv = document.createElement('div');
+                echoDiv.className = 'historical-echo';
+                echoDiv.innerHTML = `<strong>Historical Echo:</strong> ${echoes}`;
+                document.querySelector('.synthesis').appendChild(echoDiv);
+            }
+            
+            // Check for easter eggs
+            const easterEgg = checkForEasterEggs(drawnCards);
+            if (easterEgg) {
+                const eggDiv = document.createElement('div');
+                eggDiv.className = 'easter-egg';
+                eggDiv.innerHTML = easterEgg;
+                document.querySelector('.synthesis').appendChild(eggDiv);
+            }
+            
+            // Show interpretation section
+            interpretation.classList.add('show');
+            
+            // Generate custom reading with API
+            const customReading = await generateCustomReading();
+            
+            if (customReading) {
+                document.getElementById('synthesisText').innerHTML = customReading;
+            } else {
+                // Fallback if API fails
+                document.getElementById('synthesisText').innerHTML = "The cards whisper of transformation. Each scientist here changed reality by seeing differently. What will you discover when you look with their eyes?";
+            }
+        }
+
+        // Event listeners
+        document.getElementById('drawButton').addEventListener('click', () => {
+            initializeSpread();
+            setTimeout(drawCards, 100);
+        });
+        
+        document.querySelectorAll('.spread-option').forEach(option => {
+            option.addEventListener('click', function() {
+                if (isDrawing) return;
+                
+                document.querySelectorAll('.spread-option').forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                currentSpread = this.dataset.spread;
+                
+                document.getElementById('interpretation').classList.remove('show');
+                initializeSpread();
+            });
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            initializeSpread();
+        });
+    </script>
+</body>
+</html>
